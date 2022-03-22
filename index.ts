@@ -2,7 +2,8 @@ import express, { json, response } from "express";
 import { PrismaClient } from "@prisma/client";
 import cors from "cors";
 import bcrypt from "bcryptjs";
-// import jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
+import "dotenv/config";
 
 const app = express();
 app.use(cors());
@@ -26,9 +27,14 @@ app.get("/champagnes", async (req, res) => {
 });
 
 // function createToken(id: number) {
-//   const token = jwt.sign({ id: id }, "shhhh", { expiresIn: "3days" });
+//   const token = jwt.sign({ id: id }, "I am Adriano from Puka", { expiresIn: "3days" });
 //   return token;
 // }
+
+function createToken(id: number) {
+  //@ts-ignore
+  return jwt.sign({ id: id }, process.env.MY_SECRET);
+}
 
 app.listen(PORT, () => {
   console.log(`Server up: http://localhost:${PORT}`);

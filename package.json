@@ -23,5 +23,8 @@
     "jsonwebtoken": "^8.5.1",
     "prisma": "^3.11.0",
     "ts-node": "^10.7.0"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^8.5.8"
   }
 }
