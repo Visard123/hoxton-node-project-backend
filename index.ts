@@ -12,7 +12,7 @@ const prisma = new PrismaClient({ log: ["error", "warn", "query", "warn"] });
 const PORT = 4000;
 
 app.get("/users", async (req, res) => {
-  const users = await prisma.user.findMany();
+  const users = await prisma.user.findMany({ include: { reservations: true } });
 
   res.send(users);
 });
@@ -72,8 +72,7 @@ app.post("/login", async (req, res) => {
 
   try {
     const user = await prisma.user.findUnique({
-      where: { email: email },
-      //   include: { reservation: true,  },
+      where: { email: email }, include: { reservations: true }
     });
     // @ts-ignore
     const passwordMatch = bcrypt.compareSync(password, user.password);
