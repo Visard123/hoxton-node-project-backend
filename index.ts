@@ -13,6 +13,7 @@ const PORT = 4000;
 
 app.get("/users", async (req, res) => {
   const users = await prisma.user.findMany();
+
   res.send(users);
 });
 
@@ -35,6 +36,92 @@ function createToken(id: number) {
   //@ts-ignore
   return jwt.sign({ id: id }, process.env.MY_SECRET);
 }
+
+async function getUserFromToken(token: string) {
+  //@ts-ignore
+  const decodedData = jwt.verify(token, process.env.MY_SECRET);
+  const user = await prisma.user.findUnique({
+    //@ts-ignore
+    where: { id: decodedData.id },
+    // include: { reservation: true,}
+  });
+  return user;
+}
+
+app.post("/signup", async (req, res) => {
+  const { name, email, password } = req.body;
+
+  try {
+    const hash = bcrypt.hashSync(password, 8);
+    const user = await prisma.user.create({
+      data: {
+        name: name,
+        email: email,
+        password: hash,
+      },
+    });
+    res.send({ user, token: createToken(user.id) });
+  } catch (err) {
+    // @ts-ignore
+    res.status(400).send({ error: err.message });
+  }
+});
+
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email: email },
+      //   include: { reservation: true,  },
+    });
+    // @ts-ignore
+    const passwordMatch = bcrypt.compareSync(password, user.password);
+
+    if (user && passwordMatch) {
+      res.send({ user, token: createToken(user.id) });
+    } else {
+      throw Error("Something went wrong!");
+    }
+  } catch (err) {
+    // @ts-ignore
+    res.status(400).send({ error: "User or password invalid" });
+  }
+});
+
+app.get("/validate", async (req, res) => {
+  const token = req.headers.authorization || "";
+  try {
+    const user = await getUserFromToken(token);
+    res.send(user);
+  } catch (err) {
+    // @ts-ignore
+    res.status(400).send({ error: "Invalid Token" });
+  }
+});
+
+// app.post('/reservation ', async (req, res) => {
+//   const {  date, time, personsNumber} = req.body
+//   const token = req.headers.authorization || ''
+//   try {
+//       const user = await getUserFromToken(token)
+//       const reservation = await prisma.post.create({
+//           // @ts-ignore
+//            data:{  date:date, time:time, personsNumber: personsNumber userId:user.id}
+//
+//       })
+//       res.send(reservation)
+//   }
+//   catch (err) {
+//       // @ts-ignore
+//       res.status(400).send({ error: err.message })
+//   }
+// })
+
+// title String
+// //    date String
+//    time String
+//    personsNumber Int
 
 app.listen(PORT, () => {
   console.log(`Server up: http://localhost:${PORT}`);

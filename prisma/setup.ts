@@ -7,6 +7,9 @@ const users: Prisma.UserCreateInput[] = [
     name: "John",
     email: "John@mail",
     password: bcrypt.hashSync("John"),
+    reservations: {
+      create: [{ date: "28 March", personsNumber: 2, time: "18:00 Pm" }],
+    },
   },
   {
     name: "Lionel",
