@@ -17,6 +17,13 @@ app.get("/users", async (req, res) => {
   res.send(users);
 });
 
+app.get("/user/:id", async (req, res) => {
+  let id = Number(req.params.id)
+  const user = await prisma.user.findUnique({ where: { id: id }, include: { reservations: true } });
+
+  res.send(user);
+});
+
 app.get("/wines", async (req, res) => {
   const wines = await prisma.wine.findMany();
   res.send(wines);
