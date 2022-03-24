@@ -27,6 +27,11 @@ app.get("/champagnes", async (req, res) => {
   res.send(champagnes);
 });
 
+app.get("/reservation", async (req, res) => {
+  const reservation = await prisma.reservation.findMany();
+  res.send(reservation);
+});
+
 // function createToken(id: number) {
 //   const token = jwt.sign({ id: id }, "I am Adriano from Puka", { expiresIn: "3days" });
 //   return token;
@@ -99,28 +104,24 @@ app.get("/validate", async (req, res) => {
   }
 });
 
-// app.post('/reservation ', async (req, res) => {
-//   const {  date, time, personsNumber} = req.body
-//   const token = req.headers.authorization || ''
-//   try {
-//       const user = await getUserFromToken(token)
-//       const reservation = await prisma.post.create({
-//           // @ts-ignore
-//            data:{  date:date, time:time, personsNumber: personsNumber userId:user.id}
-//
-//       })
-//       res.send(reservation)
-//   }
-//   catch (err) {
-//       // @ts-ignore
-//       res.status(400).send({ error: err.message })
-//   }
-// })
+app.post('/reservation', async (req, res) => {
+  const { dateAndTime, personsNumber, userId } = req.body
+  try {
+    const reservation = await prisma.reservation.create({
+      data: {
+        dateAndTime: dateAndTime,
+        personsNumber: personsNumber,
+        userId: userId
+      }
+    })
+    res.send(reservation)
+  }
+  catch (err) {
+    // @ts-ignore
+    res.status(400).send({ error: err.message })
+  }
+})
 
-// title String
-// //    date String
-//    time String
-//    personsNumber Int
 
 app.listen(PORT, () => {
   console.log(`Server up: http://localhost:${PORT}`);
