@@ -48,7 +48,7 @@ async function getUserFromToken(token: string) {
   const user = await prisma.user.findUnique({
     //@ts-ignore
     where: { id: decodedData.id },
-    // include: { reservation: true,}
+    include: { reservations: true }
   });
   return user;
 }
@@ -99,6 +99,8 @@ app.get("/validate", async (req, res) => {
     const user = await getUserFromToken(token);
     res.send(user);
   } catch (err) {
+    // @ts-ignore
+    console.log(err.message)
     // @ts-ignore
     res.status(400).send({ error: "Invalid Token" });
   }
