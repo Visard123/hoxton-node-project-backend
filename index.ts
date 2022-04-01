@@ -12,33 +12,23 @@ const prisma = new PrismaClient({ log: ["error", "warn", "query", "warn"] });
 const PORT = 4000;
 
 app.get("/users", async (req, res) => {
-  const users = await prisma.user.findMany({ include: { reservations: true } });
+  const users = await prisma.user.findMany();
 
   res.send(users);
 });
 
-app.get("/user/:id", async (req, res) => {
+app.get("/users/:id", async (req, res) => {
   let id = Number(req.params.id)
-  const user = await prisma.user.findUnique({ where: { id: id }, include: { reservations: true } });
+  const user = await prisma.user.findUnique({ where: { id: id } });
 
   res.send(user);
 });
 
-app.get("/wines", async (req, res) => {
-  const wines = await prisma.wine.findMany();
-  res.send(wines);
-});
+app.get("/songs", async (req, res) => {
+  const songs = await prisma.song.findMany();
 
-app.get("/champagnes", async (req, res) => {
-  const champagnes = await prisma.champagne.findMany();
-  res.send(champagnes);
+  res.send(songs);
 });
-
-app.get("/reservation", async (req, res) => {
-  const reservation = await prisma.reservation.findMany();
-  res.send(reservation);
-});
-
 
 
 function createToken(id: number) {
@@ -51,49 +41,48 @@ async function getUserFromToken(token: string) {
   const decodedData = jwt.verify(token, process.env.MY_SECRET);
   const user = await prisma.user.findUnique({
     //@ts-ignore
-    where: { id: decodedData.id },
-    include: { reservations: true }
+    where: { id: decodedData.id }
   });
   return user;
 }
 
-app.post("/signup", async (req, res) => {
-  const { name, email, password } = req.body;
-
-  try {
-    const hash = bcrypt.hashSync(password, 8);
-    const user = await prisma.user.create({
-      data: {
-        name: name,
-        email: email,
-        password: hash,
-      },
-    });
-    res.send({ user, token: createToken(user.id) });
-  } catch (err) {
-    // @ts-ignore
-    res.status(400).send({ error: err.message });
-  }
-});
-
 app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+  const uniqueCode = req.body.uniqueCode;
 
   try {
     const user = await prisma.user.findUnique({
-      where: { email: email }, include: { reservations: true }
+      where: { uniqueCode: uniqueCode }
     });
-    // @ts-ignore
-    const passwordMatch = bcrypt.compareSync(password, user.password);
 
-    if (user && passwordMatch) {
+    if (user) {
       res.send({ user, token: createToken(user.id) });
     } else {
       throw Error("Something went wrong!");
     }
   } catch (err) {
     // @ts-ignore
-    res.status(400).send({ error: "User or password invalid" });
+    res.status(400).send({ error: 'Name or Unique Code Invalid' });
+  }
+});
+
+app.post("/songs", async (req, res) => {
+  const { id, clientName, songTitle, artist, songUrl } = req.body;
+
+  try {
+    const song = await prisma.song.create({
+      data: {
+        id: id,
+        clientName: clientName,
+        songTitle: songTitle,
+        artist: artist,
+        songUrl: songUrl,
+        votes: 0
+      }
+    });
+    res.send({ song });
+  } catch (err) {
+    // @ts-ignore
+    res.status(400).send({ error: err.message });
   }
 });
 
@@ -109,24 +98,6 @@ app.get("/validate", async (req, res) => {
     res.status(400).send({ error: "Invalid Token" });
   }
 });
-
-app.post('/reservation', async (req, res) => {
-  const { dateAndTime, personsNumber, userId } = req.body
-  try {
-    const reservation = await prisma.reservation.create({
-      data: {
-        dateAndTime: dateAndTime,
-        personsNumber: personsNumber,
-        userId: userId
-      }
-    })
-    res.send(reservation)
-  }
-  catch (err) {
-    // @ts-ignore
-    res.status(400).send({ error: err.message })
-  }
-})
 
 
 app.listen(PORT, () => {
