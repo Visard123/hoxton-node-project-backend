@@ -39,15 +39,6 @@ app.get("/reservation", async (req, res) => {
   res.send(reservation);
 });
 
-// function createToken(id: number) {
-//   const token = jwt.sign({ id: id }, "I am Adriano from Puka", { expiresIn: "3days" });
-//   return token;
-// }
-<<<<<<< HEAD
-
-=======
->>>>>>> parent of d3de058 (commit)
-
 function createToken(id: number) {
   //@ts-ignore
   return jwt.sign({ id: id }, process.env.MY_SECRET);
