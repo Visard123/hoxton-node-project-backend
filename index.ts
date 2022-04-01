@@ -30,6 +30,13 @@ app.get("/songs", async (req, res) => {
   res.send(songs);
 });
 
+<<<<<<< HEAD
+=======
+// function createToken(id: number) {
+//   const token = jwt.sign({ id: id }, "I am Adriano from Puka", { expiresIn: "3days" });
+//   return token;
+// }
+>>>>>>> parent of d3de058 (commit)
 
 function createToken(id: number) {
   //@ts-ignore
