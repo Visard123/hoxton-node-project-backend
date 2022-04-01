@@ -39,10 +39,7 @@ app.get("/reservation", async (req, res) => {
   res.send(reservation);
 });
 
-// function createToken(id: number) {
-//   const token = jwt.sign({ id: id }, "I am Adriano from Puka", { expiresIn: "3days" });
-//   return token;
-// }
+
 
 function createToken(id: number) {
   //@ts-ignore
