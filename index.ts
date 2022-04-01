@@ -43,7 +43,10 @@ app.get("/reservation", async (req, res) => {
 //   const token = jwt.sign({ id: id }, "I am Adriano from Puka", { expiresIn: "3days" });
 //   return token;
 // }
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of d3de058 (commit)
 
 function createToken(id: number) {
   //@ts-ignore
